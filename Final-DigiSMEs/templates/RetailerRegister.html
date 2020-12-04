@@ -1,0 +1,154 @@
+{% extends "index.html" %}
+{% block main %}
+<body>
+
+   {% if message %}
+   <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page"><button type="button" class="btn btn-outline-success"><b>{{message}}</b></button></li>
+  </ol>
+</nav>
+   <div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Login</h5>
+        <p class="card-text">Once Successfully Registered .</p>
+        <a href="https://127.0.0.1:5000/LoginRetailer" class="btn btn-primary">Login</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Register Again</h5>
+        <p class="card-text">Not Registered Properly</p>
+        <a href="https://127.0.0.1:5000/registerRetailer" class="btn btn-primary">Register Again</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+        {% endif %}
+{% if not message %}
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<!--  <a class="navbar-brand" href="#">Navbar</a>-->
+<!--  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">-->
+<!--    <span class="navbar-toggler-icon"></span>-->
+<!--  </button>-->
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <button type="button" class="btn btn-outline-success my-2 my-sm-0" data-toggle="modal" data-target="#exampleModal">
+  Login as Retailer
+</button>
+    </ul>
+    <form action="/Searchproduct" method="post" class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="text" name="keyword" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0"  type="submit">Search</button>
+    </form>
+  </div>
+   </nav>
+       <!-- Button trigger modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Retailer Register</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="registerRetailer" method="post">
+            <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" name="email">
+    </div>
+    <div class="form-group col-md-6">
+      <label for="Password">Password</label>
+      <input type="password" class="form-control" name="Password">
+    </div>
+  </div>
+             <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="companyName">Company Name</label>
+      <input type="text" class="form-control" name="companyName">
+    </div>
+    <div class="form-group col-md-6">
+      <label for="displayName">Display Name</label>
+      <input type="text" class="form-control" name="displayName">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="Address">Address</label>
+    <input type="text" class="form-control" name="Address" placeholder="1234 Main St">
+  </div>
+            <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="mobile">Mobile no </label>
+      <input type="text" class="form-control" name="mobile">
+    </div>
+    <div class="form-group col-md-2">
+      <label for="Suffix">Suffix</label>
+      <input type="text" class="form-control" name="Suffix">
+    </div>
+                <div class="form-group col-md-2">
+      <label for="Title">Title</label>
+      <input type="text" class="form-control" name="Title">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="City">City</label>
+      <input type="text" class="form-control" name="City">
+    </div>
+    <div class="form-group col-md-4">
+      <label for="Country">Country</label>
+      <<input type="text" class="form-control" name="Country">
+    </div>
+    <div class="form-group col-md-2">
+      <label for="Zip">Zip</label>
+      <input type="text" class="form-control" name="Zip">
+    </div>
+  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit"  class="btn btn-primary">Register</button>
+      </div>
+           </form>
+
+             </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<br>
+   <br>
+<div class="row row-cols-1 row-cols-md-2">
+  <div class="col mb-4">
+    <div class="card">
+      <img src="https://i.pinimg.com/originals/9f/78/b3/9f78b360509e62775cfc1a755ced349c.jpg"   class="card-img-top" alt="Raj Bhaji">
+      <div class="card-body">
+        <h5 class="card-title">Raj Bhaji</h5>
+        <p class="card-text">Fresh carrot , Methi </p>
+      </div>
+    </div>
+  </div>
+  <div class="col mb-4">
+    <div class="card">
+      <img src="https://c8.alamy.com/comp/DA1JWJ/vegetable-vendor-crawford-market-mumbai-india-DA1JWJ.jpg"   class="card-img-top" alt="Ramdas bhai">
+      <div class="card-body">
+        <h5 class="card-title">Ramdas bhai</h5>
+        <p class="card-text">Fresh carrot , Methi</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+
+{% endblock %}
