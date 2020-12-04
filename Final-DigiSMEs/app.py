@@ -1,14 +1,17 @@
-from flask import Flask, url_for,render_template
+from flask import Flask, url_for,render_template, flash
 from flask import request,Response
 from flask import jsonify
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
-from werkzeug.utils import redirect
+from werkzeug.utils import redirect, secure_filename
 from flask_caching import Cache
 import json
 from constants import *
 from geopy.distance import geodesic
+import os
 import requests
+
+
 config = {
     "DEBUG": True,
     "CACHE_TYPE": "simple",
@@ -19,6 +22,16 @@ app = Flask(__name__)
 
 app.config.from_mapping(config)
 cache = Cache(app)
+app.secret_key = "digiSMESkey"
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+path = os.getcwd()
+UPLOAD_FOLDER = os.path.join(path, 'uploads')
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'mp4']
 
 auth_client = AuthClient(
                 client_id='ABxIxSlfNGyaR4AEMXyVwuHQxCa9QH0gKdwisMVj8zmMLIROJb',
@@ -27,6 +40,9 @@ auth_client = AuthClient(
                 # redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
                 redirect_uri='https://localhost:5000/callback',
             )
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def hello_world():
@@ -210,6 +226,24 @@ class Retailer(apiRequirement):
             return render_template("ProductListDashboard.html",context =TECHNOTOUCH_PRODUCT)
 
 
+@app.route('/uploadFile/<int:retailerId>', methods=['POST'])
+def upload_file(retailerId):
+    if request.method == 'POST':
+        if 'files[]' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        files = request.files.getlist('files[]')
+        print(files)
+
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(str(retailerId) + '_' + file.filename)
+                print(filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        flash('File(s) successfully uploaded')
+        return redirect('/uploadFile/{}'.format(retailerId), retailerId)
 
 if __name__ == '__main__':
     app.run(ssl_context='adhoc')
