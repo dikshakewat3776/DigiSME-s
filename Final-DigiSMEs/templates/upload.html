@@ -1,0 +1,92 @@
+{% extends "index.html" %}
+{% block main %}
+<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #e3f2fd;">
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link btn btn-outline-success my-2 my-sm-0" href="https://127.0.0.1:5000/uploadFile/1">Upload Product <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link btn btn-outline-success my-4 my-sm-0" href="https://127.0.0.1:5000/productListDisplay">Product List</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+        <a href="https://127.0.0.1:5000/registerRetailer"  class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout  </a>
+    </form>
+  </div>
+</nav>
+<br>
+<br>
+<div class="card">
+  <div class="card-header">
+   <h5>
+      Please Upload Images/Videos. Select file/s to upload.
+      </h5>
+  </div>
+
+  <div class="card-body">
+      <p>
+   {% with messages = get_flashed_messages() %}
+     {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+     {% endif %}
+   {% endwith %}
+</p>
+<form method="post" enctype="multipart/form-data">
+    <dl>
+      <p>
+         <input type="file" name="files[]" multiple="true" autocomplete="off" required>
+      </p>
+    </dl>
+    <div>
+    <p>
+        <a href="/uploaded"><input type="submit" class="btn btn-primary" value="Submit"></a>
+   </p>
+        </div>
+</form>
+  </div>
+  <div class="card-footer text-muted">
+    2 days ago
+  </div>
+</div>
+<br>
+<br>
+
+{% if content %}
+<div class="card mb-3">
+  <img src="{{url_for('static', filename='image_Anno.jpg')}}" width= "200px" height = "550px" class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">Product Extracted</h5>
+<div class="card">
+  <h5 class="card-header">{{content.CompanyName}}</h5>
+  <div class="card-body">
+    <p>Products Available:</p>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Product</th>
+      <th scope="col">Price</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for item in content.ProductPriceDetails %}
+  <tr><td>{{item.name}}</td>
+    <td>{{item.price}}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+    </table>
+    <a href="#" class="btn btn-primary">Watch Video</a>
+
+  </div>
+</div>
+{% endif %}
+  </div>
+</div>
+
+{% endblock %}

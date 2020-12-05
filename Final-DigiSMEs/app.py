@@ -1,29 +1,21 @@
-from flask import Flask, url_for,render_template, flash
+from flask import Flask, url_for,render_template,flash
 from flask import request,Response
 from flask import jsonify
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
-from werkzeug.utils import redirect, secure_filename
+from werkzeug.utils import redirect,secure_filename
 from flask_caching import Cache
 import json
 from constants import *
 from geopy.distance import geodesic
-import os
 import requests
+import os
 
 
-config = {
-    "DEBUG": True,
-    "CACHE_TYPE": "simple",
-    "CACHE_DEFAULT_TIMEOUT": 300
-}
-
-app = Flask(__name__)
-
-app.config.from_mapping(config)
-cache = Cache(app)
+app = Flask(__name__,static_url_path='/static')
 app.secret_key = "digiSMESkey"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
 path = os.getcwd()
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
 if not os.path.isdir(UPLOAD_FOLDER):
@@ -31,7 +23,12 @@ if not os.path.isdir(UPLOAD_FOLDER):
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'mp4']
+
+
+
+
+app.config.from_mapping(config)
+cache = Cache(app)
 
 auth_client = AuthClient(
                 client_id='ABxIxSlfNGyaR4AEMXyVwuHQxCa9QH0gKdwisMVj8zmMLIROJb',
@@ -40,9 +37,6 @@ auth_client = AuthClient(
                 # redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
                 redirect_uri='https://localhost:5000/callback',
             )
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def hello_world():
@@ -119,37 +113,25 @@ def getCompanyInfo():
         return jsonify(response.text)
 
 
-
-
-# # Loading the lat-long data for Kolkata & Delhi
-# kolkata = (22.5726, 88.3639)
-# delhi = (28.7041, 77.1025)
-#
-# # Print the distance calculated in km
-# print(geodesic(kolkata, delhi).km)
-
 @app.route('/Searchproduct',methods=["POST","GET"])
 def Searchproduct():
     if request.method == "POST":
         matched_product = []
         keyword = request.form["keyword"]
         for companyName in  TECHNOTOUCH_PRODUCT:
-            productdetail = companyName.get("ProductPriceDetails")[0]
             address = companyName.get("Address")
-            if companyName.get("companyName") == keyword:
+            print(companyName.get("CompanyName"))
+            if companyName.get("CompanyName") == keyword:
                 return render_template("")
             else:
-                for product in productdetail:
-                    if json.loads(product).get("name") == keyword:
+                for product in companyName.get("ProductPriceDetails"):
+                    if product.get("name") == keyword:
                         dist = (geodesic(USER_lOCATION,(address.get("lat"),address.get("long"))).km)
                         companyName["dist"] = dist
-                        matched_product.append(companyName)
-        matched_product.sort()
-        return jsonify(matched_product)
-
-
-
-
+                        detail = {"companyName":companyName.get("CompanyName"),"product":product.get("name"),"price":product.get("price"),"distance":dist }
+                        matched_product.append(detail)
+                        context = matched_product
+        return render_template("SearchList.html",context=context)
 
 
 
@@ -163,7 +145,8 @@ class apiRequirement:
         'Content-Type': 'application/json'
     }
 
-
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 class Retailer(apiRequirement):
@@ -219,31 +202,82 @@ class Retailer(apiRequirement):
             return render_template("Login.html")
 
 
+
+    @app.route('/uploadFile/<int:retailerId>', methods=['POST',"GET"])
+    def upload_file(retailerId):
+        if request.method == 'POST':
+            if 'files[]' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+
+            files = request.files.getlist('files[]')
+            print(files)
+
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(str(retailerId) + '_' + file.filename)
+                    print(filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            flash('File(s) successfully uploaded')
+            print(TECHNOTOUCH_PRODUCT[0])
+            return render_template('upload.html', content = TECHNOTOUCH_PRODUCT[0])
+        if request.method == 'GET':
+            return render_template('upload.html')
+
+
+    @app.route("/payNow",methods=["POST"])
+    def payNow():
+        print(request.form["TotalAmt"])
+        if request.method == "POST":
+            payload = {
+                "TotalAmt": request.form["TotalAmt"],
+                "CustomerRef": {
+                    "value": "20"
+                }
+            }
+            payload = json.dumps(payload)
+            response_payment = requests.post(url=PAYMENT_API.format(apiRequirement.realmId),
+                                                headers=apiRequirement.headers, data=payload)
+            if response_payment.status_code == 200 :
+                return render_template("SearchList.html",TotalAmt = request.form["TotalAmt"])
+
+
     @app.route("/productListDisplay",methods=["GET"])
     def productListDisplay():
         if request.method == "GET":
-            # return render_template("ProductListDashboard.html",CompanyName=TECHNOTOUCH_PRODUCT["CompanyName"],productDetail=TECHNOTOUCH_PRODUCT["ProductPriceDetails"])
-            return render_template("ProductListDashboard.html",context =TECHNOTOUCH_PRODUCT)
+            for item in TECHNOTOUCH_PRODUCT:
+                print(item)
+                for product in item.get("ProductPriceDetails"):
+                    payload = {
+                          "TrackQtyOnHand": "true",
+                          "Name": product.get("name"),
+                          "QtyOnHand": 10,
+                          "IncomeAccountRef": {
+                            "name": "Sales of Product Income",
+                            "value": "79"
+                          },
+                          "AssetAccountRef": {
+                            "name": "Inventory Asset",
+                            "value": "81"
+                          },
+                          "InvStartDate": "2015-01-01",
+                          "Type": "Inventory",
+                          "ExpenseAccountRef": {
+                            "name": product.get("name"),
+                            "value": product.get("price")
+                          }}
+                    payload = json.dumps(payload)
+                    response_createItem = requests.post(url=CREATEITEM_API.format(apiRequirement.realmId),
+                                                        headers=apiRequirement.headers, data=payload)
+
+                    if response_createItem:
+                        return render_template("ProductListDashboard.html", context=TECHNOTOUCH_PRODUCT)
 
 
-@app.route('/uploadFile/<int:retailerId>', methods=['POST'])
-def upload_file(retailerId):
-    if request.method == 'POST':
-        if 'files[]' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
 
-        files = request.files.getlist('files[]')
-        print(files)
 
-        for file in files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(str(retailerId) + '_' + file.filename)
-                print(filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        flash('File(s) successfully uploaded')
-        return redirect('/uploadFile/{}'.format(retailerId), retailerId)
 
 if __name__ == '__main__':
     app.run(ssl_context='adhoc')

@@ -1,4 +1,10 @@
 BASE_URL = 'https://sandbox-quickbooks.api.intuit.com'
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'mp4']
+config = {
+    "DEBUG": True,
+    "CACHE_TYPE": "simple",
+    "CACHE_DEFAULT_TIMEOUT": 300
+}
 # Customer creation Api
 CREATECUST_REQUEST = """ {
         "PrimaryEmailAddr": {
@@ -32,15 +38,39 @@ TECHNOTOUCH_PRODUCT = [
 "ProductPriceDetails": [
     {
         "name": "carrot",
-        "price": "30"
+        "price": "15"
     },
 {
-    "name": "carrot",
-    "price": "30"
+    "name": "cauliflower",
+    "price": "32"
 },
 {
-    "name": "carrot",
-    "price": "30"
+    "name": "cabagge",
+    "price": "25"
+},
+{
+    "name": "tomatoes",
+    "price": "23"
+},
+{
+    "name": "bitter gourd",
+    "price": "23"
+},
+{
+    "name": "bottle gournd",
+    "price": "23"
+},
+{
+    "name": "egg Plant",
+    "price": "23"
+},
+{
+    "name": "spinach",
+    "price": "23"
+},
+{
+    "name": "apple",
+    "price": "230"
 },
 ],
 "Address": {
@@ -73,3 +103,13 @@ TECHNOTOUCH_PRODUCT = [
 
 
 USER_lOCATION = (11.435,34.578)
+
+
+# item Api
+
+CREATEITEM_API = BASE_URL + "/v3/company/{}/item"
+
+
+# payment Api
+
+PAYMENT_API = BASE_URL + "/v3/company/{}/payment"

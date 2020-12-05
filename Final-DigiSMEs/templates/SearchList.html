@@ -1,37 +1,7 @@
 {% extends "index.html" %}
 {% block main %}
 <body>
-
-   {% if message %}
-   <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item active" aria-current="page"><button type="button" class="btn btn-outline-success"><b>{{message}}</b></button></li>
-  </ol>
-</nav>
-   <div class="row">
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Login</h5>
-        <p class="card-text">Once Successfully Registered .</p>
-        <a href="https://127.0.0.1:5000/LoginRetailer" class="btn btn-primary">Login</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Register Again</h5>
-        <p class="card-text">Not Registered Properly</p>
-        <a href="https://127.0.0.1:5000/registerRetailer" class="btn btn-primary">Register Again</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-        {% endif %}
-{% if not message %}
-   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+ <nav class="navbar navbar-expand-lg navbar-light bg-light">
 <!--  <a class="navbar-brand" href="#">Navbar</a>-->
 <!--  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">-->
 <!--    <span class="navbar-toggler-icon"></span>-->
@@ -107,7 +77,7 @@
     </div>
     <div class="form-group col-md-4">
       <label for="Country">Country</label>
-      <input type="text" class="form-control" name="Country">
+      <<input type="text" class="form-control" name="Country">
     </div>
     <div class="form-group col-md-2">
       <label for="Zip">Zip</label>
@@ -116,7 +86,6 @@
   </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit"  class="btn btn-primary">Login</button>
         <button type="submit"  class="btn btn-primary">Register</button>
       </div>
            </form>
@@ -126,30 +95,68 @@
     </div>
   </div>
 </div>
-{% endif %}
-<br>
-   <br>
-<div class="row row-cols-1 row-cols-md-2">
-  <div class="col mb-4">
-    <div class="card">
-      <img src="https://i.pinimg.com/originals/9f/78/b3/9f78b360509e62775cfc1a755ced349c.jpg"   class="card-img-top" alt="Raj Bhaji">
-      <div class="card-body">
-        <h5 class="card-title">Raj Bhaji</h5>
-        <p class="card-text">Fresh carrot , Methi </p>
+{% for content in context %}
+ <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page"><button type="button" class="btn btn-outline-success"><b>Results nearest to you:</b></button></li>
+  </ol>
+<div class="card">
+  <h5 class="card-header">{{content.companyName}}</h5>
+  <div class="card-body">
+    <p>Search Result:</p>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Product</th>
+      <th scope="col">Price</th>
+      <th scope="col">Distance</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr><td>{{content.product}}</td>
+    <td>{{content.price}}</td>
+    <td>{{content.distance}}</td>
+  </tr>
+  </tbody>
+    </table>
+    <a href="#" class="btn btn-primary">Watch Video</a>
+
+     <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal1">Buy Now</a>
+    <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel1">Payment Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
+      <div class="modal-body">
+        <form action="/payNow" method="post">
+    <div class="form-group col-md-6">
+      <label for="TotalAmt">Total Payable Amount:</label>
+      <input type="text" placeholder="Enter Total Payable Amount" class="form-control" name="TotalAmt">
     </div>
+    <div class="form-group col-md-6">
+       <label for="Payment">Payment</label>
+      <button type="submit" class="btn btn-primary">Pay Now</button>
+    </div>
+        </form>
   </div>
-  <div class="col mb-4">
-    <div class="card">
-      <img src="https://c8.alamy.com/comp/DA1JWJ/vegetable-vendor-crawford-market-mumbai-india-DA1JWJ.jpg"   class="card-img-top" alt="Ramdas bhai">
-      <div class="card-body">
-        <h5 class="card-title">Ramdas bhai</h5>
-        <p class="card-text">Fresh carrot , Methi</p>
-      </div>
+    </div>
+</div>
     </div>
   </div>
 </div>
+
+{% endfor %}
+ {% if TotalAmt %}
+<div class="card border-success ">
+  <div class="card-header bg-transparent border-success">Payment Status</div>
+  <div class="card-body text-success">
+    <h5 class="card-title">Payment is Sucess for Amount : {{TotalAmt}}</h5>
+  </div>
+  <div class="card-footer bg-transparent border-success">Within 5min Product till be Delivered contact : 678992138</div>
+</div>
+{% endif %}
 </body>
-
-
 {% endblock %}
